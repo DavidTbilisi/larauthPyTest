@@ -4,9 +4,23 @@ import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from configs import *
+import logging
+logging.basicConfig(
+    filename='test.log', 
+    encoding='utf-8', 
+    filemode='w', 
+    format='[%(asctime)s] %(levelname)s: %(message)s',
+    level=logging.INFO)
 
-subprocess.run(["/usr/bin/php",f"{root_dir}artisan","migrate:fresh","--seed"])
+
+
+def migrate_and_seed():
+    subprocess.run(["/usr/bin/php",f"{root_dir}artisan","migrate:fresh","--seed"])
 # subprocess.run(["/usr/bin/php",f"{root_dir}artisan","serve","&"])
+
+if mstart == "yes":
+    migrate_and_seed()
+
 
 driver = webdriver.Firefox()
 driver.maximize_window()
@@ -50,11 +64,42 @@ def add_type():
     elem.send_keys(Keys.ENTER)
 
 
+def edit_type(tablename='testtable'):
+    go_uri(f"/admin/types/show/{tablename}")
+    time.sleep(2)
+    
+    # add field
+    elem = driver.find_element_by_css_selector(".add-button span")
+    elem.click()
+    time.sleep(2)
+    
+    # edit field name
+    elem = driver.find_element_by_css_selector("#newColumn")
+    elem.send_keys("thenewcolumn")
+    submit_btn = driver.find_element_by_css_selector("button.btn.btn-success")
+    submit_btn.click()
+    
+    # edit translation
+    elem = driver.find_element_by_css_selector("#thenewcolumn")
+    elem.clear()
+    elem.send_keys("ველი2", Keys.TAB)
+    time.sleep(2)
+
+    # save changes
+    submit_btn = driver.find_element_by_css_selector("button.btn.btn-success")
+    submit_btn.click()
 
 
 login(user, password)
-time.sleep(5)
+time.sleep(3)
+
 add_type()
+time.sleep(3)
+
+edit_type()
+time.sleep(3)
+
+
 time.sleep(5)
 
-# driver.close()
+driver.close()
