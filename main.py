@@ -269,5 +269,5 @@ except:
 
 driver.close()
 
-if migration_end == "no":
+if migration_end == "yes":
     migrate_and_seed()
